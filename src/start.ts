@@ -1,4 +1,4 @@
-import APP from '.'
+import APP from './index'
 import Decimal from 'decimal.js-light'
 import { PingpongController } from './controllers'
 import { PORT } from './constants'
