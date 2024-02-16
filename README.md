@@ -49,7 +49,7 @@ We try to give each project an elastic, non-hard-coded computational model, whic
 
 We refer to a variety of solutions and believe that an implementation using JavaScript may be the simplest primitive solution. The structure can be found in `src/db/models/Project/ProjectModelProcessor.ts`.
 
-Security
+### Security
 
 This type of dynamically generated function code is not safe, e.g. using `eval` or `Function`. But even so, `Function` is still slightly better than `eval`.
 
