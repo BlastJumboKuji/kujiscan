@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
-    "lib": ["ES2023"],
-    "module": "node16",
-    "target": "ES2022",
+    "target": "ESNext",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     "sourceMap": true,
     "outDir": "lib",
     "allowJs": false,
@@ -12,6 +15,8 @@
     "strict": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": false,
     "jsx": "react-jsx",
