@@ -8,6 +8,7 @@ import {
   Model,
   BelongsTo,
   HasMany,
+  ForeignKey,
 } from 'sequelize-typescript'
 
 export type ProjectModelArgumentType = 'string' | 'integer' | 'boolean'
@@ -70,6 +71,7 @@ export default class ProjectModel extends Model {
   ],
 })
 export class ProjectModelArgument extends Model {
+  @ForeignKey(() => ProjectModel)
   @AllowNull(false)
   @Column(DataType.INTEGER)
   get modelId(): number {
@@ -88,12 +90,12 @@ export class ProjectModelArgument extends Model {
     return this.getDataValue('type')
   }
 
-  @BelongsTo(() => ProjectModel)
-  get model(): ProjectModel | undefined {
+  @BelongsTo(() => ProjectModel, 'modelId')
+  get model(): ProjectModel {
     return this.getDataValue('model')
   }
 
-  set model(model: ProjectModel | undefined) {
+  set model(model: ProjectModel) {
     //
   }
 

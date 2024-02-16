@@ -4,7 +4,14 @@ import { RPC } from '../utils/EVMHelper/dbModels'
 import { DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS } from '../constants'
 // import { promisify } from 'util'
 
-const { Constant, MonitorRunLog } = Models
+const {
+  Constant,
+  MonitorRunLog,
+  Project,
+  ProjectModel,
+  ProjectModelArgument,
+  Ticket,
+} = Models
 
 const sequelize = new Sequelize({
   host: DB_HOST,
@@ -21,7 +28,15 @@ const sequelize = new Sequelize({
   pool: {
     max: 25,
   },
-  models: [Constant, MonitorRunLog, RPC],
+  models: [
+    Constant,
+    MonitorRunLog,
+    RPC,
+    Project,
+    ProjectModel,
+    ProjectModelArgument,
+    Ticket,
+  ],
 })
 
 export default sequelize
