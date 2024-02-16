@@ -2,12 +2,33 @@ import ProjectModel, {
   ProjectModelArgument,
   ProjectModelData,
 } from './ProjectModel'
+import { TicketData } from './Ticket'
+
+interface ProcessEnvBlock {
+  hash: string
+  height: number
+}
+
+interface ProcessEnvTransaction {
+  hash: string
+}
+
+export type ProcessEnvTicketData = Omit<TicketData, 'input' | 'output'>
+
+export interface ProcessEnv {
+  args: Record<string, string>
+  block: ProcessEnvBlock
+  transaction: ProcessEnvTransaction
+  history: ProcessEnvTicketHistory
+}
+
+type ProcessFunction = (env: ProcessEnv) => bigint
 
 function process(
   model: ProjectModelData,
   getAmountFunction: (env: any) => bigint
-): (args: Record<string, string>) => bigint {
-  const arg = (key: string, args: Record<string, string>): any => {
+): ProcessFunction {
+  const argOrigin = (key: string, args: Record<string, string>): any => {
     const tv = args[key]
     if (!tv) {
       throw new Error(`Argument ${key} is required`)
@@ -28,19 +49,21 @@ function process(
         throw new Error(`Unsupported argument type: ${type as string}`)
     }
   }
-  return (args: Record<string, string>): bigint => {
-    const env = { arg, args }
-    return getAmountFunction(env)
+  return (env: ProcessEnv): bigint => {
+    const pressedEnv = {
+      ...env,
+      arg: (key: string) => argOrigin(key, env.args),
+    }
+    return getAmountFunction(pressedEnv)
   }
 }
 
 const GetAmountFunctionTemplate = `
 const arg = env.arg;
-const args = env.args;
 `
 
 export default class ProjectModelProcessor {
-  private processor!: (args: Record<string, string>) => bigint
+  private processor!: ProcessFunction
 
   constructor(private readonly model: ProjectModelData) {
     this.initProcessorFunction(model)
@@ -50,7 +73,7 @@ export default class ProjectModelProcessor {
     const { arguments: args, code } = this.model
     let functionCode = GetAmountFunctionTemplate
     for (const arg of args) {
-      functionCode += `const ${arg.name} = arg("${arg.name}", args);\n`
+      functionCode += `const ${arg.name} = arg("${arg.name}");\n`
     }
     functionCode += `${code};\n\n`
     functionCode += 'return result;\n'
@@ -60,7 +83,32 @@ export default class ProjectModelProcessor {
     this.processor = processor
   }
 
-  process(args: Record<string, string>): bigint {
-    return this.processor(args)
+  process(env: ProcessEnv): bigint {
+    return this.processor(env)
+  }
+}
+
+export class ProcessEnvTicketHistory extends Array<ProcessEnvTicketData> {
+  constructor(array: ProcessEnvTicketData[]) {
+    super()
+    const arr = [...array]
+    arr.sort((a, b) => a.blockHeight - b.blockHeight)
+    this.push(...arr)
+  }
+
+  static fromArray(array: ProcessEnvTicketData[]): ProcessEnvTicketHistory {
+    return new ProcessEnvTicketHistory(array)
+  }
+
+  before(hash: string): ProcessEnvTicketData | undefined {
+    const targetIndex = this.findIndex((t) => t.transactionHash === hash)
+    if (targetIndex === -1) return undefined
+    return this[targetIndex - 1]
+  }
+
+  after(hash: string): ProcessEnvTicketData | undefined {
+    const targetIndex = this.findIndex((t) => t.transactionHash === hash)
+    if (targetIndex === -1) return undefined
+    return this[targetIndex + 1]
   }
 }
