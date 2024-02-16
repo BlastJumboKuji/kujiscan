@@ -72,7 +72,7 @@ describe('ProjectModelProcessor', function () {
         a9: '0',
         a10: '0',
       },
-      history: new ProcessEnvTicketHistory([...env.history, self]),
+      history: new ProcessEnvTicketHistory([self, ...env.history]),
     }
     return originv1MockEnv
   }
@@ -94,9 +94,7 @@ describe('ProjectModelProcessor', function () {
       },
       history: new ProcessEnvTicketHistory([]),
     })
-    const result = processor.process({
-      ...mockEnv,
-    })
+    const result = processor.process(mockEnv)
     expect(result).to.equal(9500n)
   })
 
@@ -117,9 +115,7 @@ describe('ProjectModelProcessor', function () {
       },
       history: new ProcessEnvTicketHistory([]),
     })
-    const result = processor.process({
-      ...mockEnv,
-    })
+    const result = processor.process(mockEnv)
     expect(result).to.equal(0n)
   })
 
@@ -151,9 +147,7 @@ describe('ProjectModelProcessor', function () {
         },
       ]),
     })
-    const result = processor.process({
-      ...mockEnv,
-    })
+    const result = processor.process(mockEnv)
     expect(result).to.equal(1900n)
   })
 })
