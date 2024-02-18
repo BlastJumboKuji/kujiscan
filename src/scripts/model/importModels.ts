@@ -2,10 +2,12 @@ import ProjectModel, {
   ProjectModelArgument,
 } from '../../db/models/Project/ProjectModel'
 import env from '../env'
-import models from './models'
+import models from '../../ProjectModelProcessor/models'
+
+const ms = Object.values(models)
 
 env(async () => {
-  for (const model of models) {
+  for (const model of ms) {
     const [modelRow, created] = await ProjectModel.findOrCreate({
       where: {
         name: model.name,

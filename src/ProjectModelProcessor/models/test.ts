@@ -1,4 +1,4 @@
-import { ProjectModelData } from '../../../db/models/Project/ProjectModel'
+import { ProjectModelData } from '../../db/models/Project/ProjectModel'
 
 const define: ProjectModelData = {
   name: 'test',

@@ -3,13 +3,12 @@ import ProjectModelProcessor, {
   ProcessEnvTicketData,
   ProcessEnvTicketHistory,
 } from '../ProjectModelProcessor'
-import testModel from '../scripts/model/models/test'
-import originv1Model from '../scripts/model/models/originv1'
+import models from '../ProjectModelProcessor/models'
 import { expect } from 'chai'
 
 describe('ProjectModelProcessor', function () {
   it('test model', function () {
-    const processor = new ProjectModelProcessor(testModel)
+    const processor = new ProjectModelProcessor(models.test)
     const mockEnv: ProcessEnv = {
       args: {},
       block: {
@@ -78,7 +77,7 @@ describe('ProjectModelProcessor', function () {
   }
 
   it('originv1: normal', function () {
-    const processor = new ProjectModelProcessor(originv1Model)
+    const processor = new ProjectModelProcessor(models.originv1)
     // base * a * ap * diff * X / cd
     // 100  * 1 * 19 * 30   * 5 / 30 = 9500
     const mockEnv = getOriginv1MockEnv({
@@ -99,7 +98,7 @@ describe('ProjectModelProcessor', function () {
   })
 
   it('originv1: no reward', function () {
-    const processor = new ProjectModelProcessor(originv1Model)
+    const processor = new ProjectModelProcessor(models.originv1)
     // base * a  * ap * diff * X / cd
     // 100  * 10 * 0  * 30   * 5 / 30 = 0
     const mockEnv = getOriginv1MockEnv({
@@ -120,7 +119,7 @@ describe('ProjectModelProcessor', function () {
   })
 
   it('originv1: has history', function () {
-    const processor = new ProjectModelProcessor(originv1Model)
+    const processor = new ProjectModelProcessor(models.originv1)
     // base * a * ap * diff * X / cd
     // 100  * 1 * 19 * 6    * 5 / 30 = 1900
     const mockEnv = getOriginv1MockEnv({
