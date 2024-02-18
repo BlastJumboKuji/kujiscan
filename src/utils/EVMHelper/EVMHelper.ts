@@ -13,10 +13,19 @@ function isPrivateKey(pk: string): boolean {
 }
 
 export default class EVMHelper {
+  private _scan: EVMHelperScan | undefined
+
   constructor(readonly chain: SupportedEVMHelperChains) {}
 
   get explorer(): string {
     return DefaultEVMHelperExplorerURLs[this.chain]
+  }
+
+  get scan(): EVMHelperScan {
+    if (!this.scan) {
+      this._scan = new EVMHelperScan(this)
+    }
+    return this._scan!
   }
 
   async getRandomRPC(): Promise<[string, number]> {
@@ -67,6 +76,22 @@ export default class EVMHelper {
   txLink(hash: string): string {
     return this.link('tx', hash)
   }
+}
+
+export class EVMHelperScan {
+  private readonly scanAPI: string
+
+  constructor(private readonly helper: EVMHelper) {
+    const scanAPI = DefaultEVMHelperScanAPIUrls[helper.chain]
+    if (!scanAPI) {
+      throw new Error(`Scan API URL for ${helper.chain} not found`)
+    }
+    this.scanAPI = scanAPI
+  }
+
+  get chain(): SupportedEVMHelperChains {
+    return this.helper.chain
+  }
 
   // https://api.bscscan.com/api?module=account&action=txlist&address=0xb62bf8d41fe27622924971887d8f482b00e50660&startblock=0&endblock=99999999&page=1&offset=10&sort=desc
   async getNormalTransactionsByAddress(
@@ -109,7 +134,7 @@ export default class EVMHelper {
     //   "confirmations": "724",
     //   "isError": "0"
     //   }
-    const provider = await this.getRpcProvider()
+    const provider = await this.helper.getRpcProvider()
     if (data.status !== '1') {
       throw new Error(data.result)
     }
