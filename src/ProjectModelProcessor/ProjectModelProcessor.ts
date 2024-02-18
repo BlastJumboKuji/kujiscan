@@ -1,28 +1,5 @@
-import ProjectModel, {
-  ProjectModelArgument,
-  ProjectModelData,
-} from './ProjectModel'
-import { TicketData } from './Ticket'
-
-interface ProcessEnvBlock {
-  hash: string
-  height: number
-}
-
-interface ProcessEnvTransaction {
-  hash: string
-}
-
-export type ProcessEnvTicketData = Omit<TicketData, 'input' | 'output'>
-
-export interface ProcessEnv {
-  args: Record<string, string>
-  block: ProcessEnvBlock
-  transaction: ProcessEnvTransaction
-  history: ProcessEnvTicketHistory
-}
-
-type ProcessFunction = (env: ProcessEnv) => bigint
+import { ProjectModelData } from '../db/models/Project/ProjectModel'
+import { ProcessEnv, ProcessFunction } from './types'
 
 function process(
   model: ProjectModelData,
@@ -85,30 +62,5 @@ export default class ProjectModelProcessor {
 
   process(env: ProcessEnv): bigint {
     return this.processor(env)
-  }
-}
-
-export class ProcessEnvTicketHistory extends Array<ProcessEnvTicketData> {
-  constructor(array: ProcessEnvTicketData[]) {
-    super()
-    const arr = [...array]
-    arr.sort((a, b) => a.blockHeight - b.blockHeight)
-    this.push(...arr)
-  }
-
-  static fromArray(array: ProcessEnvTicketData[]): ProcessEnvTicketHistory {
-    return new ProcessEnvTicketHistory(array)
-  }
-
-  before(hash: string): ProcessEnvTicketData | undefined {
-    const targetIndex = this.findIndex((t) => t.transactionHash === hash)
-    if (targetIndex === -1) return undefined
-    return this[targetIndex - 1]
-  }
-
-  after(hash: string): ProcessEnvTicketData | undefined {
-    const targetIndex = this.findIndex((t) => t.transactionHash === hash)
-    if (targetIndex === -1) return undefined
-    return this[targetIndex + 1]
   }
 }

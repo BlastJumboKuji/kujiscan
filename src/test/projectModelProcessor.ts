@@ -2,7 +2,7 @@ import ProjectModelProcessor, {
   ProcessEnv,
   ProcessEnvTicketData,
   ProcessEnvTicketHistory,
-} from '../db/models/Project/ProjectModelProcessor'
+} from '../ProjectModelProcessor'
 import testModel from '../scripts/model/models/test'
 import originv1Model from '../scripts/model/models/originv1'
 import { expect } from 'chai'
