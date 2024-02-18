@@ -10,6 +10,7 @@ import {
   HasMany,
   ForeignKey,
 } from 'sequelize-typescript'
+import Project from './Project'
 
 export type ProjectModelArgumentType = 'string' | 'integer' | 'boolean'
 export interface ProjectModelArgumentData {
@@ -42,11 +43,19 @@ export default class ProjectModel extends Model {
 
   @HasMany(() => ProjectModelArgument)
   get arguments(): ProjectModelArgument[] {
-    return this.getDataValue('arguments')
+    return this.getDataValue('arguments') ?? []
   }
 
   set arguments(_arguments: ProjectModelArgument[]) {
     //
+  }
+
+  getData(): ProjectModelData {
+    return {
+      name: this.name,
+      code: this.code,
+      arguments: this.arguments.map((arg) => arg.getData()),
+    }
   }
 
   async getFullModelData(): Promise<ProjectModelData> {
