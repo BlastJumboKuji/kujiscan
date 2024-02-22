@@ -11,7 +11,7 @@
     "lint": "eslint src",
     "start": "npm run babel  && node -r dotenv/config lib/start.js",
     "start_monitor": "npm run babel && node -r dotenv/config lib/Monitor/start.js",
-    "test": "npm run babel && mocha -r dotenv/config lib/test/",
+    "test": "npm run babel && mocha -r dotenv/config lib/test/ --timeout 60000",
     "upload_server": "http-server ./upload",
     "script": "npm run babel && node -r dotenv/config ",
     "script_no_build": "node -r dotenv/config ",

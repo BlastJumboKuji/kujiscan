@@ -14,8 +14,9 @@ describe('BlastHelper', function () {
     const helper = new EVMHelper(SupportedEVMHelperChains.blastSepoliaTestnet)
     const provider = await helper.getRpcProvider()
     const logs = await provider.getLogs({
-      fromBlock: 1695841,
-      toBlock: 1695851,
+      fromBlock: 1957367,
+      toBlock: 1957369,
+      address: '0x25fF31959f85de4b59F188BD223456ae45F1032A',
     })
     expect(logs.length).gt(0)
   })

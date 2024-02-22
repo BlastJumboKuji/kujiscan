@@ -3,6 +3,7 @@ import {
   ethers,
   ContractTransactionResponse,
   ContractTransactionReceipt,
+  JsonRpcProvider,
 } from 'ethers6'
 import WrappedContract from '../WrappedContract'
 import { MAX_ETH_NUM } from '../../utils/evm'
@@ -15,6 +16,11 @@ export interface KujiOriginv1ContractProps {
   price: string
   signer: string
   rewardToken: string
+}
+
+export interface KujiOriginv1Log {
+  raw: ethers.Log
+  parsed: ethers.LogDescription | null
 }
 
 export default class KujiOriginv1Contract extends WrappedContract {
@@ -35,7 +41,7 @@ export default class KujiOriginv1Contract extends WrappedContract {
     return this._contract
   }
 
-  // props
+  // views
   async endAt(): Promise<number> {
     const bn: bigint = await this.contract.endAt()
     return Number(bn)
@@ -67,12 +73,15 @@ export default class KujiOriginv1Contract extends WrappedContract {
   }
 
   async getFullProps(): Promise<KujiOriginv1ContractProps> {
-    const endAt = await this.endAt()
-    const startAt = await this.startAt()
-    const owner = await this.owner()
-    const price = await this.price()
-    const signer = await this.signer()
-    const rewardToken = await this.rewardToken()
+    const [endAt, startAt, owner, price, signer, rewardToken] =
+      await Promise.all([
+        this.endAt(),
+        this.startAt(),
+        this.owner(),
+        this.price(),
+        this.signer(),
+        this.rewardToken(),
+      ])
 
     return {
       endAt,
@@ -82,5 +91,63 @@ export default class KujiOriginv1Contract extends WrappedContract {
       signer,
       rewardToken,
     }
+  }
+
+  // functions
+  async buyTicket(
+    amount: number,
+    overwriteValue?: string
+  ): Promise<ContractTransactionReceipt> {
+    let value = overwriteValue
+    if (!value) {
+      value = await this.price()
+      value = new Decimal(value).mul(amount).toString()
+    }
+    const tx: ContractTransactionResponse = await this.contract.buyTicket(
+      amount,
+      {
+        value,
+      }
+    )
+    const txwait = await tx.wait()
+    if (!txwait) {
+      throw new Error('Transaction failed')
+    }
+    return txwait
+  }
+
+  async changeTime(
+    startAt: number,
+    endAt: number
+  ): Promise<ContractTransactionReceipt> {
+    const tx: ContractTransactionResponse = await this.contract.changeTime(
+      startAt,
+      endAt
+    )
+    const txwait = await tx.wait()
+    if (!txwait) {
+      throw new Error('Transaction failed')
+    }
+    return txwait
+  }
+
+  // others
+  async getLogs(
+    fromBlock: number,
+    toBlock: number
+  ): Promise<KujiOriginv1Log[]> {
+    const logs = await this.provider.provider!.getLogs({
+      fromBlock,
+      toBlock,
+      address: this.address,
+    })
+    const events = logs.map((log) => {
+      const description = this.contract.interface.parseLog(log)
+      return {
+        raw: log,
+        parsed: description,
+      }
+    })
+    return events
   }
 }
